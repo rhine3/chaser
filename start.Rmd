@@ -5,15 +5,55 @@ output: html_notebook
 
 # Find species-rich eBird locations
 
+Get a list of all counties for a region: not implemented in `rebird` yet.
+
+
+First, get the eBird API token, which I stored in my `.Renviron` file as `EBIRD_KEY`
+
+```{r}
+EBIRD_KEY <- Sys.getenv("EBIRD_KEY")
+```
+
+
+Now get all counties, in this instance in the US. Variables: 
+
+* `return_region_type`: [subnational2|subnational1|country]. The type of subregions to be returned.
+* `parent_region_code`: any ISO3166 subnational1 or country code, or 'world'. If 'world' then regionType must be 'country'.
+* `json_or_csv`: [json|csv]. Suffix to specify result content type.
+
+```{r}
+library("httr")
+library("dplyr")
+
+ebase <- 'https://ebird.org/ws2.0/'
+return_region_type <- 'subnational2'
+parent_region_code <- "US"
+args <- list('X-eBirdApiToken' = EBIRD_KEY)
+json_or_csv <- 'csv'
+    
+url <- paste0(ebase, 'ref/region/list/', return_region_type, '/', parent_region_code, '.', json_or_csv)
+
+ret <- GET(url, add_headers("X-eBirdApiToken" = EBIRD_KEY)) #, query = args)
+
+asChar <- readBin(ret$content, "character")
+counties <- tbl_df(read.delim(text = asChar, skip = 12, 
+                            stringsAsFactors = FALSE)[,-50])
+counties
+```
+
+
 Get frequencies for one county
 
 ```{r}
 library("rebird")
-county_freqs <- ebirdfreq(loc = 'US-VA-003', loctype='counties', date='2019-02-14',max=10)
+
+county_freqs <- ebirdfreq(loc = 'US-VA-003', loctype='counties', date='2019-02-14',max=10) #TODO what does date mean 
 county_freqs
 ```
 
-Get a list of all counties for a region: not implemented in `rebird` yet.
+
+Get frequencies for all counties..
+
 
 Remove certain species from consideration by common name:
 
