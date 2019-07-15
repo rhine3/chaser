@@ -1,0 +1,27 @@
+---
+title: "eBird diversity finder"
+output: html_notebook
+---
+
+# Find species-rich eBird locations
+
+Get frequencies for one county
+
+```{r}
+library("rebird")
+county_freqs <- ebirdfreq(loc = 'US-VA-003', loctype='counties', date='2019-02-14',max=10)
+county_freqs
+```
+
+Get a list of all counties for a region: not implemented in `rebird` yet.
+
+Remove certain species from consideration by common name:
+
+```{r}
+spp_to_remove <- list("Snow Goose", "Ross's Goose")
+
+subset_county_freqs <- subset(county_freqs, comName != spp_to_remove)
+subset_county_freqs
+```
+
+
