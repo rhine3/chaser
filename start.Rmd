@@ -5,10 +5,18 @@ output: html_notebook
 
 # Find species-rich eBird locations
 
+
+```{r}
+install.packages("devtools")
+devtools::install_github("ropensci/rebird")
+```
+
+
 Get a list of all counties for a region: not implemented in `rebird` yet.
 
 
-First, get the eBird API token, which I stored in my `.Renviron` file as `EBIRD_KEY`
+First, get the eBird API token, which I stored in my `.Renviron` file as `EBIRD_KEY`.
+If you don't have an `.Renviron` file, you can make one in several locations, but I made mine in the location determined by running `Sys.getenv("HOME")`
 
 ```{r}
 EBIRD_KEY <- Sys.getenv("EBIRD_KEY")
@@ -34,26 +42,44 @@ json_or_csv <- 'csv'
 url <- paste0(ebase, 'ref/region/list/', return_region_type, '/', parent_region_code, '.', json_or_csv)
 
 ret <- GET(url, add_headers("X-eBirdApiToken" = EBIRD_KEY)) #, query = args)
-
-asChar <- readBin(ret$content, "character")
-counties <- tbl_df(read.delim(text = asChar, skip = 12, 
-                            stringsAsFactors = FALSE)[,-50])
-counties
+ret
 ```
 
+Transform this return into a tibble:
+```{r}
+asChar <- readBin(ret$content, "character")
+counties <- tbl_df(read.delim(text = asChar, sep=',',
+                              stringsAsFactors = FALSE))
+counties
+```
 
 Get frequencies for one county
 
 ```{r}
 library("rebird")
 
-county_freqs <- ebirdfreq(loc = 'US-VA-003', loctype='counties', date='2019-02-14',max=10) #TODO what does date mean 
+county_freqs <- ebirdfreq(loc = 'US-SC-001', loctype='counties', date='2019-02-14',max=10) #TODO what does date mean 
+
 county_freqs
 ```
 
-
 Get frequencies for all counties..
 
+```{r}
+t0 <- proc.time()
+csv_path = './county_results/'
+num_counties = 10
+total_counties = dim(counties)[1]
+for (i in 1:dim(counties)[1]) {
+  county_code <- counties[[i,1]]
+  result <- ebirdfreq(loc = county_code, loctype='counties')#, date='2019-02-14',max=10)
+  write.csv(result, file = paste0(csv_path, county_code, '.csv'))
+}
+t1 <- proc.time()
+total_time <- t1 - t0
+print("Time elapsed:")
+print(total_time)
+```
 
 Remove certain species from consideration by common name:
 
