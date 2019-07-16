@@ -104,7 +104,8 @@ def analyze_county(freq_path, life_list_path, desired_weeks, freq_thresh):
     analyzed = threshold_freqs(df = analyzed, thresh = freq_thresh)
     
     # Sort in descending order of frequency and reindex
-    analyzed = analyzed.sort_values(by = 'frequency', ascending = False).reset_index()
+    analyzed = analyzed.sort_values(
+        by = 'frequency', ascending = False).reset_index(drop=True)
     
     return analyzed
 
