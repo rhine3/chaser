@@ -1,7 +1,8 @@
+__pycache__/
 .DS_Store
 .ipynb_checkpoints/
 csvs/
-.Rproj.user
-csvs/ #life list .csvs
-old/ #old version
-county_results/ #frequency tables
+.Rproj
+csvs/
+old/ 
+county_results/
