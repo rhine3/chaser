@@ -70,7 +70,7 @@ def load_life_list(path):
 
 ########## COUNTY ANALYSIS PIPELINE ##########
 
-def analyze_county(freq_path, life_list_path, desired_weeks):
+def analyze_county(freq_path, life_list_path, desired_weeks, freq_thresh):
     '''
     Find lifers with desired parameters
     
@@ -87,6 +87,8 @@ def analyze_county(freq_path, life_list_path, desired_weeks):
             "Month" is a capitalized full month name, and X
             is an integer, 1-4, representing the week of the
             month that is desired
+        freq_thresh (float): percentage threshold (0-1) below
+            which species frequencies should be excluded
     '''
     
     raw_freqs = load_freq_csv(freq_path)
@@ -97,7 +99,7 @@ def analyze_county(freq_path, life_list_path, desired_weeks):
     analyzed = remove_spuhs(df = analyzed)
     analyzed = keep_lifers(life_list = lifelist, df = analyzed)
     analyzed = average_freqs(df = analyzed)
-    analyzed = threshold_freqs(df = analyzed, thresh=0.5)
+    analyzed = threshold_freqs(df = analyzed, thresh = freq_thresh)
     
     return analyzed
 
@@ -138,15 +140,15 @@ def remove_spuhs(df):
     return df.loc[
         # Remove anything that contains a dot (i.e. a "spuh")
         ~(
-            desired_weeks_data['comName'].str.contains('\.')
+            df['comName'].str.contains('\.')
         ) &
         # Remove anything that contains a forward slash (i.e. an uncertain ID)
         ~(
-            desired_weeks_data['comName'].str.contains('/')
+            df['comName'].str.contains('/')
         ) &
         # Remove anything that is a hybrid
         ~(
-            desired_weeks_data['comName'].str.contains('hybrid')
+            df['comName'].str.contains('hybrid')
         )
     ]
 
@@ -208,10 +210,10 @@ def threshold_freqs(df, thresh):
         df (pandas DataFrame): dataframe as described above
             with float 'frequency' column
         thresh (float): threshold below which to remove species.
-            Should be a percentage from 0 to 100. 
+            Should be a percentage from 0 to 1. 
     
     Returns: 
         dataframe with low-frequency species removed
     '''
 
-    return df[df['frequency'] >= threshold]
+    return df[df['frequency'] >= thresh]
