@@ -1,19 +1,20 @@
 ---
-title: "eBird diversity finder"
+title: "Download eBird frequency tables"
 output: html_notebook
 ---
 
-# Find species-rich eBird locations
+# Download eBird frequency tables
 
+Use `rebird` (https://github.com/ropensci/rebird) and direct eBird API calls to download
+eBird species frequency tables for all counties in a given country. In this example, we download
+frequency tables for all counties in the United States of America.
+
+### Prepare use of `rebird`
 
 ```{r}
 install.packages("devtools")
 devtools::install_github("ropensci/rebird")
 ```
-
-
-Get a list of all counties for a region: not implemented in `rebird` yet.
-
 
 First, get the eBird API token, which I stored in my `.Renviron` file as `EBIRD_KEY`.
 If you don't have an `.Renviron` file, you can make one in several locations, but I made mine in the location determined by running `Sys.getenv("HOME")`
@@ -22,8 +23,9 @@ If you don't have an `.Renviron` file, you can make one in several locations, bu
 EBIRD_KEY <- Sys.getenv("EBIRD_KEY")
 ```
 
+### List counties of interest
 
-Now get all counties, in this instance in the US. Variables: 
+Now get all counties, in this instance in the US. This is not implemented in `rebird` yet. Variables: 
 
 * `return_region_type`: [subnational2|subnational1|country]. The type of subregions to be returned.
 * `parent_region_code`: any ISO3166 subnational1 or country code, or 'world'. If 'world' then regionType must be 'country'.
@@ -53,7 +55,9 @@ counties <- tbl_df(read.delim(text = asChar, sep=',',
 counties
 ```
 
-Get frequencies for one county
+### Download frequencies .csvs
+
+Try getting frequencies for one county:
 
 ```{r}
 library("rebird")
@@ -63,7 +67,7 @@ county_freqs <- ebirdfreq(loc = 'US-SC-001', loctype='counties', date='2019-02-1
 county_freqs
 ```
 
-Get frequencies for all counties..
+Get frequencies for all counties: (warning--this may take a while!)
 
 ```{r}
 t0 <- proc.time()
@@ -80,14 +84,4 @@ total_time <- t1 - t0
 print("Time elapsed:")
 print(total_time)
 ```
-
-Remove certain species from consideration by common name:
-
-```{r}
-spp_to_remove <- list("Snow Goose", "Ross's Goose")
-
-subset_county_freqs <- subset(county_freqs, comName != spp_to_remove)
-subset_county_freqs
-```
-
 
