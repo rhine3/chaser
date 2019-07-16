@@ -1,3 +1,5 @@
 .DS_Store
 .ipynb_checkpoints/
-csvs/
+csvs/ #life list .csvs
+old/ #old version
+county_results/ #frequency tables
