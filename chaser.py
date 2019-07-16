@@ -91,15 +91,20 @@ def analyze_county(freq_path, life_list_path, desired_weeks, freq_thresh):
             which species frequencies should be excluded
     '''
     
+    # Load data
     raw_freqs = load_freq_csv(freq_path)
     raw_lifelist = load_life_list(life_list_path)
     lifelist = list(raw_lifelist['Common Name'])
     
+    # Perform analyses
     analyzed = select_weeks(weeks = desired_weeks, df = raw_freqs)
     analyzed = remove_spuhs(df = analyzed)
     analyzed = keep_lifers(life_list = lifelist, df = analyzed)
     analyzed = average_freqs(df = analyzed)
     analyzed = threshold_freqs(df = analyzed, thresh = freq_thresh)
+    
+    # Sort in descending order of frequency and reindex
+    analyzed = analyzed.sort_values(by = 'frequency', ascending = False).reset_index()
     
     return analyzed
 
